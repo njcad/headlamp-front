@@ -5,6 +5,7 @@ import LandingPage from "@/pages/LandingPage";
 import PartnerLoginPage from "@/pages/PartnerLoginPage";
 import PartnerDashboardPage from "@/pages/PartnerDashboardPage";
 import ClientChatPage from "@/pages/ClientChatPage";
+import CaseProfilePage from "@/pages/CaseProfilePage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/partner/login" element={<PartnerLoginPage />} />
           <Route path="/partner/dashboard" element={<PartnerDashboardPage />} />
+          <Route path="/partner/case/:caseId" element={<CaseProfilePage />} />
           <Route path="/chat" element={<ClientChatPage />} />
         </Routes>
       </Container>
