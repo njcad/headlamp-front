@@ -12,9 +12,20 @@ export type ClientApplication = {
   denied_at?: string | null;
 };
 
+export type OrgSummary = {
+  id: number;
+  name: string;
+  description: string;
+};
+
+export type ApplicationWithOrg = {
+  application: ClientApplication;
+  organization: OrgSummary;
+};
+
 export const getUserApplications = async (
   userId: string,
-): Promise<ClientApplication[]> => {
+): Promise<ApplicationWithOrg[]> => {
   const resp = await fetch(`${API_BASE_URL}/applications?user_id=${userId}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -25,7 +36,7 @@ export const getUserApplications = async (
   if (!resp.ok) {
     return [];
   }
-  return resp.json() as Promise<ClientApplication[]>;
+  return resp.json() as Promise<ApplicationWithOrg[]>;
 };
 
 

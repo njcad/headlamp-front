@@ -11,6 +11,7 @@ import {
 import {
   getUserApplications,
   type ClientApplication,
+  type ApplicationWithOrg,
 } from "@/api/applications";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -34,7 +35,7 @@ function computeStatus(app: ClientApplication): {
 export default function ClientApplicationsPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [apps, setApps] = useState<ClientApplication[] | null>(null);
+  const [apps, setApps] = useState<ApplicationWithOrg[] | null>(null);
   const [, setError] = useState<string | null>(null);
   const [polling, setPolling] = useState(false);
   const userId = useMemo(() => {
@@ -84,7 +85,7 @@ export default function ClientApplicationsPage() {
 
     // Capture baseline IDs once per polling session
     let baselineIds: Set<string> | null = apps
-      ? new Set(apps.map((a) => a.id))
+      ? new Set(apps.map((x) => x.application.id))
       : null;
 
     const poll = async () => {
@@ -94,9 +95,9 @@ export default function ClientApplicationsPage() {
         if (cancelled) return;
         // Initialize baseline if we didn't have one yet
         if (baselineIds === null) {
-          baselineIds = new Set<string>(data.map((a) => a.id));
+          baselineIds = new Set<string>(data.map((x) => x.application.id));
         } else {
-          const hasNew = data.some((a) => !baselineIds!.has(a.id));
+          const hasNew = data.some((x) => !baselineIds!.has(x.application.id));
           if (hasNew) {
             setApps(data);
             setPolling(false);
@@ -168,7 +169,9 @@ export default function ClientApplicationsPage() {
           </Box>
         ) : (
           <Stack gap="4">
-            {apps.map((app) => {
+            {apps.map((item) => {
+              const app = item.application;
+              const org = item.organization;
               const status = computeStatus(app);
               return (
                 <Box
@@ -179,24 +182,31 @@ export default function ClientApplicationsPage() {
                   rounded="xl"
                   p="6"
                 >
-                  <HStack justify="space-between" align="start">
-                    <Stack gap="1">
-                      <Text fontSize="sm" color="fg.muted">
-                        Organization ID
-                      </Text>
-                      <Text fontSize="lg" fontWeight="semibold">
-                        {app.organization_id}
-                      </Text>
-                    </Stack>
-                    <Stack gap="1" align="end">
-                      <Text fontSize="sm" color="fg.muted">
-                        Status
-                      </Text>
-                      <Text fontWeight="semibold" color={status.color}>
-                        {status.label}
-                      </Text>
-                    </Stack>
-                  </HStack>
+                  <Stack gap="3">
+                    <HStack justify="space-between" align="start">
+                      <Stack gap="1">
+                        <Text fontSize="sm" color="fg.muted">
+                          Organization
+                        </Text>
+                        <Text fontSize="lg" fontWeight="semibold">
+                          {org.name}
+                        </Text>
+                      </Stack>
+                      <Stack gap="1" align="end">
+                        <Text fontSize="sm" color="fg.muted">
+                          Status
+                        </Text>
+                        <Text fontWeight="semibold" color={status.color}>
+                          {status.label}
+                        </Text>
+                      </Stack>
+                    </HStack>
+                    <ExpandableText label="About" text={org.description} />
+                    <ExpandableText
+                      label="Application details"
+                      text={app.content}
+                    />
+                  </Stack>
                   <HStack gap="8" mt="4" wrap="wrap">
                     <Stack gap="1">
                       <Text fontSize="sm" color="fg.muted">
@@ -235,5 +245,36 @@ export default function ClientApplicationsPage() {
         )}
       </Container>
     </Box>
+  );
+}
+
+function ExpandableText(props: { label: string; text: string }) {
+  const { label, text } = props;
+  const [expanded, setExpanded] = useState(false);
+  const showToggle = text && text.length > 160;
+  const displayText = text || "-";
+  return (
+    <Stack gap="1">
+      <Text fontSize="sm" color="fg.muted">
+        {label}
+      </Text>
+      <Text
+        color="fg"
+        lineClamp={expanded ? undefined : 3}
+        whiteSpace="pre-wrap"
+      >
+        {displayText}
+      </Text>
+      {showToggle ? (
+        <Button
+          onClick={() => setExpanded((v) => !v)}
+          variant="subtle"
+          size="xs"
+          alignSelf="start"
+        >
+          {expanded ? "Show less" : "Show more"}
+        </Button>
+      ) : null}
+    </Stack>
   );
 }
