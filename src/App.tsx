@@ -1,11 +1,24 @@
-import React from "react";
+import { Container } from "@chakra-ui/react";
+import { Routes, Route } from "react-router-dom";
+import AppHeader from "@/components/layout/AppHeader";
+import LandingPage from "@/pages/LandingPage";
+import PartnerLoginPage from "@/pages/PartnerLoginPage";
+import PartnerDashboardPage from "@/pages/PartnerDashboardPage";
+import ClientChatPage from "@/pages/ClientChatPage";
 
 function App() {
   return (
-    <div style={{ padding: "2rem", fontFamily: "system-ui, sans-serif" }}>
-      <h1>Headlamp</h1>
-      <p>Welcome to your React TypeScript app!</p>
-    </div>
+    <>
+      <AppHeader />
+      <Container maxW="container.2xl" py="6">
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/partner/login" element={<PartnerLoginPage />} />
+          <Route path="/partner/dashboard" element={<PartnerDashboardPage />} />
+          <Route path="/chat" element={<ClientChatPage />} />
+        </Routes>
+      </Container>
+    </>
   );
 }
 
