@@ -10,8 +10,8 @@ export default function Composer() {
   const onSubmit = async () => {
     const text = value.trim();
     if (!text || sending) return;
-    await sendMessage(text);
     setValue("");
+    await sendMessage(text);
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -47,7 +47,7 @@ export default function Composer() {
         rounded="full"
         aria-label="Send message"
         onClick={onSubmit}
-        loading={sending}
+        disabled={sending}
       >
         <LuArrowUp />
       </Button>

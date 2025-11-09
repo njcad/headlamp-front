@@ -19,7 +19,10 @@ type ChatContextValue = {
   messages: ChatMessage[];
   sending: boolean;
   error: string | null;
-  sendMessage: (text: string) => Promise<void>;
+  sendMessage: (
+    text: string,
+    options?: { clickedOrgIds?: number[] }
+  ) => Promise<void>;
   clear: () => void;
 };
 
@@ -38,7 +41,7 @@ export function ChatProvider(props: { children: React.ReactNode }) {
   });
 
   const sendMessage = useCallback(
-    async (text: string) => {
+    async (text: string, options?: { clickedOrgIds?: number[] }) => {
       const trimmed = text.trim();
       if (!trimmed || sending) return;
       setError(null);
@@ -51,7 +54,13 @@ export function ChatProvider(props: { children: React.ReactNode }) {
       setSending(true);
       try {
         const res: AgentMessageResponse = await sendChatMessage(
-          userId ? { user_id: userId, message: trimmed } : { message: trimmed }
+          userId
+            ? {
+                user_id: userId,
+                message: trimmed,
+                clickedOrgIds: options?.clickedOrgIds,
+              }
+            : { message: trimmed, clickedOrgIds: options?.clickedOrgIds }
         );
         if (!userId && res.user_id) {
           try {
