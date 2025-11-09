@@ -18,10 +18,10 @@ import { ReferralCard } from "@/components/ReferralCard";
 const mockCaseData: Record<string, any> = {
   "1": {
     id: 1,
-    name: "Nissrin Gehawi",
-    firstName: "Nissrin",
-    lastName: "Gehawi",
-    preferredName: "Niss",
+    name: "Jordan Smith",
+    firstName: "Jordan",
+    lastName: "Smith",
+    preferredName: "Jordy",
     age: 19,
     dateOfBirth: "10-10-2006",
     email: "ng@gmail.com",
@@ -35,7 +35,7 @@ const mockCaseData: Record<string, any> = {
       { type: "shelter" as const, label: "Shelter" },
     ],
     caseSummary:
-      "Niss is currently experiencing housing instability and is seeking assistance with securing safe shelter and preventing an eviction. They have expressed concern about losing their current place to stay and are interested in emergency shelter options, rental support resources, and guidance regarding the eviction process. The client is open to receiving support and is looking for next steps to stabilize their housing situation.",
+      "Jordy is currently experiencing housing instability and is seeking assistance with securing safe shelter and preventing an eviction. They have expressed concern about losing their current place to stay and are interested in emergency shelter options, rental support resources, and guidance regarding the eviction process. The client is open to receiving support and is looking for next steps to stabilize their housing situation.",
     referrals: [
       {
         id: 1,
@@ -133,11 +133,11 @@ const mockCaseData: Record<string, any> = {
     lastUpdated: "11/7/25 at 3:21 PM",
     keywords: [{ type: "transitional" as const, label: "Transitional Housing" }],
     caseSummary:
-      "Nate is working with Mission Rescue Union on transitional housing options. He has been accepted into their program and is currently in the intake process. He is looking for stable housing while working on employment opportunities.",
+      "Nate is working with Union Mission Rescue on transitional housing options. He has been accepted into their program and is currently in the intake process. He is looking for stable housing while working on employment opportunities.",
     referrals: [
       {
         id: 1,
-        organization: "Mission Rescue Union",
+        organization: "Union Mission Rescue",
         status: "accepted" as const,
         statusText: "Accepted",
         service: {

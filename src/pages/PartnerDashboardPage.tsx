@@ -19,64 +19,104 @@ import { CaseCard } from "@/components/CaseCard";
 import { ServiceBadge } from "@/components/ServiceBadge";
 import { ReferralCard } from "@/components/ReferralCard";
 
-const mockCases = [
+type CaseStatus = "unopened" | "accepted" | "denied" | "pending";
+
+const statusColors: Record<CaseStatus, string> = {
+  unopened: "gray.500",
+  accepted: "green.500",
+  denied: "red.500",
+  pending: "yellow.500",
+};
+
+const statusLabelMap: Record<CaseStatus, string> = {
+  unopened: "Unopened",
+  accepted: "Accepted",
+  denied: "Denied",
+  pending: "Pending",
+};
+
+const statusOptions: CaseStatus[] = ["unopened", "accepted", "denied", "pending"];
+
+type CaseServiceType =
+  | "eviction"
+  | "shelter"
+  | "transitional"
+  | "substance"
+  | "food";
+
+type CaseService = {
+  type: CaseServiceType;
+  label: string;
+};
+
+type CaseOverview = {
+  id: number;
+  name: string;
+  status: CaseStatus;
+  statusText: string;
+  receivedDate: string;
+  lastUpdated: string;
+  services: CaseService[];
+};
+
+const mockCases: CaseOverview[] = [
   {
     id: 1,
-    name: "Nissrin Gehawi",
-    status: "unopened" as const,
+    name: "Jordan Smith",
+    status: "unopened",
     statusText: "Unopened",
     receivedDate: "11/1/25 at 12:01 PM",
     lastUpdated: "11/7/25 at 3:21 PM",
     services: [
-      { type: "eviction" as const, label: "Eviction Assistance" },
-      { type: "shelter" as const, label: "Shelter" },
-    ],
+      { type: "food", label: "Food Assistance" },
+      { type: "shelter", label: "Shelter" },
+    ] satisfies CaseService[],
   },
   {
     id: 2,
     name: "Nate Cadicamo",
-    status: "accepted" as const,
+    status: "accepted",
     statusText: "Accepted at Mission Rescue Union",
     receivedDate: "10/31/25 at 12:01 PM",
     lastUpdated: "11/7/25 at 3:21 PM",
     services: [
-      { type: "transitional" as const, label: "Transitional Housing" },
-    ],
+      { type: "transitional", label: "Transitional Housing" },
+    ] satisfies CaseService[],
   },
   {
     id: 3,
     name: "Skye Hathaway",
-    status: "denied" as const,
+    status: "denied",
     statusText: "Denied",
     receivedDate: "10/28/25 at 12:01 PM",
     lastUpdated: "11/7/25 at 3:21 PM",
     services: [
-      { type: "shelter" as const, label: "Shelter" },
-      { type: "substance" as const, label: "Substance-Free Housing" },
-    ],
+      { type: "shelter", label: "Shelter" },
+      { type: "substance", label: "Substance-Free Housing" },
+    ] satisfies CaseService[],
   },
   {
     id: 4,
     name: "Hamed Hekmat",
-    status: "pending" as const,
+    status: "pending",
     statusText: "Pending at CHYP",
     receivedDate: "11/1/25 at 12:01 PM",
     lastUpdated: "11/7/25 at 3:21 PM",
     services: [
-      { type: "eviction" as const, label: "Eviction Assistance" },
-      { type: "transitional" as const, label: "Transitional Housing" },
-    ],
+      { type: "eviction", label: "Eviction Assistance" },
+      { type: "transitional", label: "Transitional Housing" },
+    ] satisfies CaseService[],
   },
   {
     id: 5,
     name: "Grace Buzzell",
-    status: "accepted" as const,
+    status: "accepted",
     statusText: "Accepted at Bill Wilson Center",
     receivedDate: "11/1/25 at 12:01 PM",
     lastUpdated: "11/7/25 at 3:21 PM",
     services: [
-      { type: "substance" as const, label: "Substance-Free Housing" },
-    ],
+      { type: "substance", label: "Substance-Free Housing" },
+    ] satisfies CaseService[],
   },
 ];
 
@@ -94,24 +134,24 @@ const parseDate = (dateString: string): Date => {
 const mockCaseData: Record<string, any> = {
   "1": {
     id: 1,
-    name: "Nissrin Gehawi",
-    firstName: "Nissrin",
-    lastName: "Gehawi",
-    preferredName: "Niss",
-    age: 19,
-    dateOfBirth: "10-10-2006",
-    email: "ng@gmail.com",
+    name: "Jordan Smith",
+    firstName: "Jordan",
+    lastName: "Smith",
+    preferredName: "Jordy",
+    age: 18,
+    dateOfBirth: "10-10-2007",
+    email: "js@gmail.com",
     phone: "(888) 100 - 1000",
     contactMethod: "Email or phone",
     contactNotes: "Do not text or leave voicemail",
     receivedDate: "11/1/25 at 12:01 PM",
     lastUpdated: "11/7/25 at 3:21 PM",
     keywords: [
-      { type: "eviction" as const, label: "Eviction Assistance" },
+      { type: "food" as const, label: "Food Assistance" },
       { type: "shelter" as const, label: "Shelter" },
     ],
     caseSummary:
-      "Niss is currently experiencing housing instability and is seeking assistance with securing safe shelter and preventing an eviction. They have expressed concern about losing their current place to stay and are interested in emergency shelter options, rental support resources, and guidance regarding the eviction process. The client is open to receiving support and is looking for next steps to stabilize their housing situation.",
+      "Jordy is currently experiencing housing instability and is seeking assistance with securing safe shelter and preventing an eviction. They have expressed concern about losing their current place to stay and are interested in emergency shelter options, rental support resources, and guidance regarding the eviction process. The client is open to receiving support and is looking for next steps to stabilize their housing situation.",
     referrals: [
       {
         id: 1,
@@ -204,6 +244,7 @@ const mockCaseData: Record<string, any> = {
 
 export default function PartnerDashboardPage() {
   const [sortBy, setSortBy] = useState("newest");
+  const [cases, setCases] = useState<CaseOverview[]>(mockCases);
   const [selectedCaseId, setSelectedCaseId] = useState<number | null>(null);
   const [addedReferrals, setAddedReferrals] = useState<Set<string>>(new Set());
   const [noteModalOpen, setNoteModalOpen] = useState<{
@@ -300,39 +341,58 @@ export default function PartnerDashboardPage() {
   }, [allOrganizations, organizationSearchQuery]);
 
   const sortedCases = useMemo(() => {
-    const cases = [...mockCases];
-    
+    const sorted = [...cases];
+
     switch (sortBy) {
       case "newest":
-        return cases.sort((a, b) => {
+        return sorted.sort((a, b) => {
           const dateA = parseDate(a.receivedDate);
           const dateB = parseDate(b.receivedDate);
           return dateB.getTime() - dateA.getTime(); // Descending (newest first)
         });
       case "oldest":
-        return cases.sort((a, b) => {
+        return sorted.sort((a, b) => {
           const dateA = parseDate(a.receivedDate);
           const dateB = parseDate(b.receivedDate);
           return dateA.getTime() - dateB.getTime(); // Ascending (oldest first)
         });
       case "needs":
-        return cases.sort((a, b) => {
+        return sorted.sort((a, b) => {
           const needsA = a.services.length > 0 ? a.services[0].label : "";
           const needsB = b.services.length > 0 ? b.services[0].label : "";
           return needsA.localeCompare(needsB);
         });
       case "status":
-        return cases.sort((a, b) => a.statusText.localeCompare(b.statusText));
+        return sorted.sort((a, b) => a.statusText.localeCompare(b.statusText));
       default:
-        return cases;
+        return sorted;
     }
-  }, [sortBy]);
+  }, [cases, sortBy]);
+
+  const handleStatusChange = (caseId: number, nextStatus: CaseStatus) => {
+    setCases((prev) =>
+      prev.map((caseItem) => {
+        if (caseItem.id !== caseId) return caseItem;
+        const customText = caseItem.statusText;
+        const defaultText = statusLabelMap[nextStatus];
+        const nextText =
+          caseItem.status === nextStatus && customText
+            ? customText
+            : defaultText;
+        return {
+          ...caseItem,
+          status: nextStatus,
+          statusText: nextText,
+        };
+      })
+    );
+  };
 
   return (
     <Box minH="100vh" bg="bg">
       <Container maxW="7xl" px={{ base: 4, sm: 6, lg: 8 }} py="12">
         <Heading size="2xl" fontWeight="semibold" color="fg" mb="8">
-          My Organization Dashboard
+          California Youth Homeless Project's Dashboard
         </Heading>
 
         <HStack gap="3" mb="6" align="center">
@@ -397,9 +457,59 @@ export default function PartnerDashboardPage() {
             <Dialog.Content maxW="7xl" maxH="90vh" overflowY="auto">
               <Dialog.Header>
                 <HStack justify="space-between" align="center" w="full">
-                  <Heading size="2xl" fontWeight="semibold" color="fg">
-                    {caseData.name}
-                  </Heading>
+                  <HStack align="center" gap="4">
+                    <Heading size="2xl" fontWeight="semibold" color="fg">
+                      {caseData.name}
+                    </Heading>
+                    {(() => {
+                      const activeCase = cases.find(
+                        (caseItem) => caseItem.id === caseData.id
+                      );
+                      if (!activeCase) return null;
+                      const statusColor = statusColors[activeCase.status];
+                      const statusLabel = activeCase.statusText;
+                      return (
+                        <Menu.Root>
+                          <Menu.Trigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              rounded="full"
+                              fontWeight="medium"
+                              px="3"
+                              py="1.5"
+                            >
+                              <HStack gap="2" align="center">
+                                <Box
+                                  w="8px"
+                                  h="8px"
+                                  rounded="full"
+                                  bg={statusColor}
+                                />
+                                <Text fontSize="sm" color="fg.muted">
+                                  {statusLabel}
+                                </Text>
+                                <LuChevronDown size={14} />
+                              </HStack>
+                            </Button>
+                          </Menu.Trigger>
+                          <Menu.Positioner>
+                            <Menu.Content>
+                              {statusOptions.map((option) => (
+                                <Menu.Item
+                                  key={option}
+                                  value={option}
+                                  onClick={() => handleStatusChange(caseData.id, option)}
+                                >
+                                  {statusLabelMap[option]}
+                                </Menu.Item>
+                              ))}
+                            </Menu.Content>
+                          </Menu.Positioner>
+                        </Menu.Root>
+                      );
+                    })()}
+                  </HStack>
                   <Dialog.CloseTrigger asChild>
                     <Button variant="ghost" size="sm">
                       <LuX />
@@ -436,7 +546,7 @@ export default function PartnerDashboardPage() {
                       <Box
                         bg="bg"
                         borderWidth="1px"
-                        borderColor="border"
+                        borderColor="orange.400"
                         rounded="xl"
                         p="8"
                       >
@@ -786,6 +896,6 @@ export default function PartnerDashboardPage() {
           </Dialog.Content>
         </Dialog.Positioner>
       </Dialog.Root>
-    </Box>
+      </Box>
   );
 }
