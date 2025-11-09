@@ -10,7 +10,7 @@ function App() {
   return (
     <>
       <AppHeader />
-      <Container maxW="container.2xl" py="6">
+      <Container maxW="container.2xl" pt="20" pb="24">
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/partner/login" element={<PartnerLoginPage />} />

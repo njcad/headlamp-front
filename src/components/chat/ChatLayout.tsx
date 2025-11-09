@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Stack, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Stack, Text } from "@chakra-ui/react";
 import MessageList from "@/components/chat/MessageList";
 import Composer from "@/components/chat/Composer";
 import { useChatContext } from "@/context/ChatContext";
@@ -39,8 +39,18 @@ export default function ChatLayout() {
           overflowY="auto"
           px={{ base: 0, md: 2 }}
           py="3"
+          pb="36"
           minH="40vh"
+          position="relative"
         >
+          <Box
+            position="sticky"
+            top="0"
+            h="6"
+            bgGradient="linear(to-b, bg, transparent)"
+            zIndex="1"
+            pointerEvents="none"
+          />
           {messages.length === 0 ? (
             <Stack gap="3">
               <Text color="fg.muted">Your conversation will appear here.</Text>
@@ -57,27 +67,40 @@ export default function ChatLayout() {
               {error}
             </Text>
           ) : null}
+          <Box
+            position="sticky"
+            bottom="0"
+            h="10"
+            bgGradient="linear(to-t, bg, transparent)"
+            zIndex="1"
+            pointerEvents="none"
+          />
         </Box>
-        <Box w="full" maxW="3xl" position="sticky" bottom="0" bg="bg" pt="2">
-          <Stack align="center" mb="2">
-            <Button
-              variant="solid"
-              bg="orange.400"
-              color="white"
-              _hover={{ bg: "orange.500" }}
-              _active={{ bg: "orange.600" }}
-              disabled={!hasSelection || sending}
-              onClick={onApply}
-              size="sm"
-              rounded="full"
+        <Box
+          position="fixed"
+          left="0"
+          right="0"
+          bottom="0"
+          bg="bg"
+          zIndex="1000"
+        >
+          <Box w="full" maxW="3xl" mx="auto" px={{ base: 2, md: 2 }} pt="2">
+            <Composer
+              mode={hasSelection ? "apply" : "chat"}
+              onApply={onApply}
+              disabled={sending || !hasSelection}
+              applyLabel="Help me apply to these orgs"
+            />
+            <Text
+              color="fg.muted"
+              fontSize="xs"
+              mt="2"
+              textAlign="center"
+              pb="2"
             >
-              Help me apply to these orgs
-            </Button>
-          </Stack>
-          <Composer />
-          <Text color="fg.muted" fontSize="xs" mt="2" textAlign="center">
-            This is a demo. Chat functionality coming soon.
-          </Text>
+              This is a demo. Chat functionality coming soon.
+            </Text>
+          </Box>
         </Box>
       </Flex>
     </Flex>
