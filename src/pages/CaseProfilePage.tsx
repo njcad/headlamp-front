@@ -65,7 +65,7 @@ const mockCaseData: Record<string, any> = {
       },
       {
         id: 3,
-        organization: "Union Rescue Mission",
+        organization: "Hope Solutions",
         status: "unopened" as const,
         statusText: "Unopened",
         service: {
@@ -78,7 +78,7 @@ const mockCaseData: Record<string, any> = {
       },
       {
         id: 4,
-        organization: "Union Rescue Mission",
+        organization: "Hope Solutions",
         status: "unopened" as const,
         statusText: "Unopened",
         service: {
