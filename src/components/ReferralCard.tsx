@@ -17,6 +17,8 @@ interface ReferralCardProps {
   referredBy: string;
   lastUpdated: string;
   showAddButton?: boolean;
+  onAdd?: () => void;
+  isAdded?: boolean;
 }
 
 const statusColors: Record<StatusType, string> = {
@@ -42,6 +44,8 @@ export function ReferralCard({
   referredBy,
   lastUpdated,
   showAddButton = false,
+  onAdd,
+  isAdded = false,
 }: ReferralCardProps) {
   return (
     <Card.Root
@@ -69,8 +73,8 @@ export function ReferralCard({
               </Text>
             </HStack>
           </HStack>
-          {showAddButton && (
-            <Button size="sm" variant="outline">
+          {showAddButton && !isAdded && (
+            <Button size="sm" variant="outline" onClick={onAdd}>
               Add
             </Button>
           )}
@@ -95,7 +99,7 @@ export function ReferralCard({
           </HStack>
           <HStack>
             <Text fontWeight="medium">Referred by:</Text>
-            <Text>{referredBy}</Text>
+            <Text>{isAdded ? `${referredBy}, Your Org` : referredBy}</Text>
           </HStack>
           <HStack>
             <Text fontWeight="medium">Last Updated:</Text>
