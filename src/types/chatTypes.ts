@@ -9,7 +9,7 @@ export type AgentMessageResponse = {
     user_id: string;
     message: string;
     orgs?: OrgType[];
-    application_draft?: string;
+    application_draft?: ApplicationDraft;
 }
 
 export type OrgType = {
@@ -20,8 +20,7 @@ export type OrgType = {
 
 export type ApplicationDraft = {
     name: string;
-    email?: string;
-    phone?: string;
+    phone: string;
     summary: string;
     orgs: OrgType[];
 }

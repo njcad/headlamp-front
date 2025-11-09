@@ -6,13 +6,18 @@ import {
   useState,
 } from "react";
 import { sendChatMessage } from "@/api/chat";
-import type { AgentMessageResponse, OrgType } from "@/types/chatTypes";
+import type {
+  AgentMessageResponse,
+  ApplicationDraft,
+  OrgType,
+} from "@/types/chatTypes";
 
 export type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   content: string;
   orgs?: OrgType[];
+  applicationDraft?: ApplicationDraft;
 };
 
 type ChatContextValue = {
@@ -73,6 +78,7 @@ export function ChatProvider(props: { children: React.ReactNode }) {
           role: "assistant",
           content: res.message,
           orgs: res.orgs,
+          applicationDraft: res.application_draft,
         };
         setMessages((prev) => [...prev, assistantMessage]);
       } catch (e) {

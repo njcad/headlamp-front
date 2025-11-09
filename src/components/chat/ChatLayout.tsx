@@ -1,8 +1,10 @@
-import { Box, Flex, Heading, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, useDisclosure } from "@chakra-ui/react";
 import MessageList from "@/components/chat/MessageList";
 import Composer from "@/components/chat/Composer";
 import { useChatContext } from "@/context/ChatContext";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import ApplicationDraftModal from "@/components/chat/ApplicationDraftModal";
+import type { ApplicationDraft } from "@/types/chatTypes";
 
 export default function ChatLayout() {
   const { messages, error, sendMessage, sending } = useChatContext();
@@ -23,14 +25,41 @@ export default function ChatLayout() {
     });
     setSelectedOrgIds([]);
   };
+  const { open, onOpen, onClose } = useDisclosure({ defaultOpen: true });
+  const mockDraft: ApplicationDraft = useMemo(
+    () => ({
+      name: "John Doe",
+      phone: "(555) 123-4567",
+      summary:
+        "I need help with food assistance and housing support for my family. I recently lost my job and am struggling to make ends meet.",
+      orgs: [
+        {
+          id: 1,
+          name: "City Food Bank",
+          description:
+            "Provides emergency food assistance to families in need.",
+        },
+        {
+          id: 2,
+          name: "Housing First Coalition",
+          description:
+            "Offers temporary housing and rental assistance programs.",
+        },
+        {
+          id: 3,
+          name: "Family Support Services",
+          description:
+            "Comprehensive support including counseling and job placement.",
+        },
+      ],
+    }),
+    []
+  );
+  useEffect(() => {
+    if (messages.length === 0) onOpen();
+  }, [messages.length, onOpen]);
   return (
     <Flex direction="column" minH="70vh">
-      <Stack align="center" textAlign="center" mb="4" px="2">
-        <Heading size="lg">How can we help today?</Heading>
-        <Text color="fg.muted" fontSize="sm">
-          Ask a question or describe what you need.
-        </Text>
-      </Stack>
       <Flex direction="column" flex="1" align="center">
         <Box
           flex="1"
@@ -52,9 +81,11 @@ export default function ChatLayout() {
             pointerEvents="none"
           />
           {messages.length === 0 ? (
-            <Stack gap="3">
-              <Text color="fg.muted">Your conversation will appear here.</Text>
-            </Stack>
+            <Flex justify="center" align="center" minH="30vh">
+              <Button onClick={onOpen} colorPalette="orange" size="md">
+                Review application draft
+              </Button>
+            </Flex>
           ) : (
             <MessageList
               messages={messages}
@@ -76,6 +107,16 @@ export default function ChatLayout() {
             pointerEvents="none"
           />
         </Box>
+        <ApplicationDraftModal
+          isOpen={open}
+          onClose={onClose}
+          draft={mockDraft}
+          onSubmit={(draft) => {
+            console.log("Submit ApplicationDraft:", draft);
+            alert("Mock submitted. Check console for payload.");
+            onClose();
+          }}
+        />
         <Box
           position="fixed"
           left="0"
