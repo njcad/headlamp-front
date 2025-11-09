@@ -9,5 +9,7 @@ export const postJson = async <T>(path: string, payload: unknown): Promise<T> =>
     body: JSON.stringify(payload),
   });
 
+  console.log(response);
+
   return response.json() as Promise<T>;
 };
