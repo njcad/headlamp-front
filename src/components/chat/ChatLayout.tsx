@@ -4,7 +4,10 @@ import Composer from "@/components/chat/Composer";
 import { useChatContext } from "@/context/ChatContext";
 import { useEffect, useState } from "react";
 import ApplicationDraftModal from "@/components/chat/ApplicationDraftModal";
-import type { ApplicationDraft as UIApplicationDraft, BackendApplicationDraft } from "@/types/chatTypes";
+import type {
+  ApplicationDraft as UIApplicationDraft,
+  BackendApplicationDraft,
+} from "@/types/chatTypes";
 
 export default function ChatLayout() {
   const { messages, error, sendMessage, sending } = useChatContext();
@@ -112,16 +115,16 @@ export default function ChatLayout() {
                 summary: draft.summary,
                 organizations: draft.orgs, // Backend expects 'organizations' not 'orgs'
               };
-              
+
               // Extract organization IDs for doApply
               const orgIds = draft.orgs.map((org) => org.id);
-              
+
               // Send message with application draft and doApply flag
               await sendMessage("I'm ready to submit my application", {
                 applicationDraft: backendDraft,
                 doApply: orgIds,
               });
-              
+
               setUiDraft(null);
               onClose();
             }}

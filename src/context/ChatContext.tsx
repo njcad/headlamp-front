@@ -27,7 +27,11 @@ type ChatContextValue = {
   error: string | null;
   sendMessage: (
     text: string,
-    options?: { clickedOrgIds?: number[]; applicationDraft?: BackendApplicationDraft; doApply?: number[] }
+    options?: {
+      clickedOrgIds?: number[];
+      applicationDraft?: BackendApplicationDraft;
+      doApply?: number[];
+    }
   ) => Promise<void>;
   clear: () => void;
 };
@@ -49,7 +53,11 @@ export function ChatProvider(props: { children: React.ReactNode }) {
   const sendMessage = useCallback(
     async (
       text: string,
-      options?: { clickedOrgIds?: number[]; applicationDraft?: BackendApplicationDraft; doApply?: number[] }
+      options?: {
+        clickedOrgIds?: number[];
+        applicationDraft?: BackendApplicationDraft;
+        doApply?: number[];
+      }
     ) => {
       const trimmed = text.trim();
       if (!trimmed || sending) return;

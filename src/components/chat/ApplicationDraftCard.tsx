@@ -33,11 +33,11 @@ export default function ApplicationDraftCard(props: {
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const selectedOrgs = initialDraft.orgs.filter((o) =>
       selectedOrgIds.includes(o.id)
     );
-    onSubmit({
+    await onSubmit({
       name,
       phone,
       summary,

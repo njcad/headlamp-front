@@ -12,7 +12,7 @@ import {
   getUserApplications,
   type ClientApplication,
 } from "@/api/applications";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function formatDate(dt?: string | null): string {
   if (!dt) return "-";
@@ -33,8 +33,10 @@ function computeStatus(app: ClientApplication): {
 
 export default function ClientApplicationsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [apps, setApps] = useState<ClientApplication[] | null>(null);
   const [, setError] = useState<string | null>(null);
+  const [polling, setPolling] = useState(false);
   const userId = useMemo(() => {
     try {
       return localStorage.getItem("headlamp_user_id");
@@ -42,6 +44,13 @@ export default function ClientApplicationsPage() {
       return null;
     }
   }, []);
+
+  // Detect if we should poll for a newly created application
+  const shouldPoll = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    const fromState = (location.state as any)?.pendingFromSubmission === true;
+    return params.has("pending") || fromState;
+  }, [location]);
 
   useEffect(() => {
     let mounted = true;
@@ -63,6 +72,55 @@ export default function ClientApplicationsPage() {
       mounted = false;
     };
   }, [userId]);
+
+  // Poll for new application for a short timeout window
+  useEffect(() => {
+    if (!userId || !shouldPoll) return;
+    let cancelled = false;
+    const start = Date.now();
+    const timeoutMs = 8000;
+    const intervalMs = 1200;
+    setPolling(true);
+
+    // Capture baseline IDs once per polling session
+    let baselineIds: Set<string> | null = apps
+      ? new Set(apps.map((a) => a.id))
+      : null;
+
+    const poll = async () => {
+      if (cancelled) return;
+      try {
+        const data = await getUserApplications(userId);
+        if (cancelled) return;
+        // Initialize baseline if we didn't have one yet
+        if (baselineIds === null) {
+          baselineIds = new Set<string>(data.map((a) => a.id));
+        } else {
+          const hasNew = data.some((a) => !baselineIds!.has(a.id));
+          if (hasNew) {
+            setApps(data);
+            setPolling(false);
+            return;
+          }
+        }
+        setApps(data);
+      } catch {
+        // ignore and continue polling until timeout
+      }
+      if (!cancelled && Date.now() - start < timeoutMs) {
+        setTimeout(poll, intervalMs);
+      } else {
+        setPolling(false);
+      }
+    };
+
+    // kick off immediately
+    const kick = setTimeout(poll, 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(kick);
+    };
+  }, [userId, shouldPoll]);
 
   return (
     <Box minH="100vh" bg="bg">
@@ -92,8 +150,10 @@ export default function ClientApplicationsPage() {
               Go to chat
             </Button>
           </Box>
-        ) : apps === null ? (
-          <Text color="fg.muted">Loading...</Text>
+        ) : apps === null || polling ? (
+          <Text color="fg.muted">
+            {polling ? "Looking for your new application..." : "Loading..."}
+          </Text>
         ) : apps.length === 0 ? (
           <Box
             bg="bg"
