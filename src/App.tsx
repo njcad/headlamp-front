@@ -6,6 +6,7 @@ import PartnerLoginPage from "@/pages/PartnerLoginPage";
 import PartnerDashboardPage from "@/pages/PartnerDashboardPage";
 import ClientChatPage from "@/pages/ClientChatPage";
 import CaseProfilePage from "@/pages/CaseProfilePage";
+import ClientApplicationsPage from "@/pages/ClientApplicationsPage";
 
 function App() {
   return (
@@ -18,6 +19,10 @@ function App() {
           <Route path="/partner/dashboard" element={<PartnerDashboardPage />} />
           <Route path="/partner/case/:caseId" element={<CaseProfilePage />} />
           <Route path="/chat" element={<ClientChatPage />} />
+          <Route
+            path="/client/applications"
+            element={<ClientApplicationsPage />}
+          />
         </Routes>
       </Container>
     </>
