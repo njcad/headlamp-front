@@ -1,6 +1,11 @@
 import { Box, Card, HStack, Stack, Text, Badge } from "@chakra-ui/react";
 
-type ServiceType = "eviction" | "shelter" | "transitional" | "substance";
+type ServiceType =
+  | "eviction"
+  | "shelter"
+  | "transitional"
+  | "substance"
+  | "food";
 type StatusType = "unopened" | "accepted" | "denied" | "pending";
 
 interface Service {
@@ -16,6 +21,7 @@ interface CaseCardProps {
   receivedDate: string;
   lastUpdated: string;
   services: Service[];
+  referredTo?: string[];
 }
 
 const statusColors: Record<StatusType, string> = {
@@ -30,6 +36,7 @@ const serviceColors: Record<ServiceType, string> = {
   shelter: "purple.100",
   transitional: "orange.100",
   substance: "pink.100",
+  food: "purple.200",
 };
 
 export function CaseCard({
@@ -39,14 +46,15 @@ export function CaseCard({
   receivedDate,
   lastUpdated,
   services,
+  referredTo = [],
 }: CaseCardProps) {
   return (
     <Card.Root
       borderWidth="1px"
-      borderColor="border"
+      borderColor={statusColors[status]}
       p="6"
       bg="bg"
-      _hover={{ borderColor: "border.emphasized" }}
+      _hover={{ borderColor: statusColors[status] }}
       position="relative"
     >
       <Stack gap="1">
@@ -67,6 +75,22 @@ export function CaseCard({
               </Text>
             </HStack>
           </HStack>
+          {services.length > 0 && (
+            <HStack wrap="wrap" gap="2" justify="flex-end" maxW="60%">
+              {services.map((service, index) => (
+                <Badge
+                  key={index}
+                  bg={serviceColors[service.type]}
+                  color="black"
+                  borderWidth="0"
+                  px="2"
+                  py="1"
+                >
+                  {service.label}
+                </Badge>
+              ))}
+            </HStack>
+          )}
         </HStack>
 
         <Stack gap="2" fontSize="sm" color="fg.muted">
@@ -74,24 +98,17 @@ export function CaseCard({
             <Text fontWeight="medium">Received:</Text>
             <Text>{receivedDate}</Text>
           </HStack>
-        </Stack>
-
-        {services.length > 0 && (
-          <HStack wrap="wrap" gap="2" mt="4">
-            {services.map((service, index) => (
-              <Badge
-                key={index}
-                bg={serviceColors[service.type]}
-                color="black"
-                borderWidth="0"
-                px="2"
-                py="1"
-              >
-                {service.label}
-              </Badge>
-            ))}
+          <HStack>
+            <Text fontWeight="medium">Referred by:</Text>
+            <Text>Headlamp</Text>
           </HStack>
-        )}
+          {referredTo.length > 0 && (
+            <HStack align="start">
+              <Text fontWeight="medium">Referred to:</Text>
+              <Text>{referredTo.join(", ")}</Text>
+            </HStack>
+          )}
+        </Stack>
       </Stack>
 
       <Box

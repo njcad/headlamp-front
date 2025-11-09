@@ -47,13 +47,26 @@ export function ReferralCard({
   onAdd,
   isAdded = false,
 }: ReferralCardProps) {
+  const outlineColor =
+    status === "accepted"
+      ? "green.500"
+      : status === "denied"
+      ? "red.500"
+      : "border";
+  const hoverOutlineColor =
+    status === "accepted"
+      ? "green.600"
+      : status === "denied"
+      ? "red.600"
+      : "border.emphasized";
+
   return (
     <Card.Root
       borderWidth="1px"
-      borderColor="border"
+      borderColor={outlineColor}
       p="6"
       bg="bg"
-      _hover={{ borderColor: "border.emphasized" }}
+      _hover={{ borderColor: hoverOutlineColor }}
     >
       <Stack gap="4">
         <HStack justify="space-between" align="center">

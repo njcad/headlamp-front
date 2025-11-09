@@ -1,6 +1,11 @@
 import { Badge } from "@chakra-ui/react";
 
-type ServiceType = "eviction" | "shelter" | "transitional" | "substance";
+type ServiceType =
+  | "eviction"
+  | "shelter"
+  | "transitional"
+  | "substance"
+  | "food";
 
 interface ServiceBadgeProps {
   service: ServiceType;
@@ -12,6 +17,7 @@ const serviceColors: Record<ServiceType, string> = {
   shelter: "purple.100",
   transitional: "orange.100",
   substance: "pink.100",
+  food: "purple.200",
 };
 
 export function ServiceBadge({ service, label }: ServiceBadgeProps) {
