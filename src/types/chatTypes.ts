@@ -2,7 +2,8 @@ export type UserMessagePayload = {
     user_id?: string;
     message: string;
     clickedOrgIds?: number[];
-    do_apply?: boolean;
+    applicationDraft?: BackendApplicationDraft;
+    doApply?: number[];
 }
 
 export type AgentMessageResponse = {

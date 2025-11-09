@@ -4,7 +4,7 @@ import Composer from "@/components/chat/Composer";
 import { useChatContext } from "@/context/ChatContext";
 import { useEffect, useState } from "react";
 import ApplicationDraftModal from "@/components/chat/ApplicationDraftModal";
-import type { ApplicationDraft as UIApplicationDraft } from "@/types/chatTypes";
+import type { ApplicationDraft as UIApplicationDraft, BackendApplicationDraft } from "@/types/chatTypes";
 
 export default function ChatLayout() {
   const { messages, error, sendMessage, sending } = useChatContext();
@@ -103,10 +103,29 @@ export default function ChatLayout() {
               onClose();
             }}
             draft={uiDraft}
-            onSubmit={(draft) => {
-              console.log("Submit ApplicationDraft:", draft);
+            onSubmit={async (draft) => {
+              // Transform frontend ApplicationDraft to backend BackendApplicationDraft format
+              const backendDraft: BackendApplicationDraft = {
+                name: draft.name,
+                phone: draft.phone || undefined,
+                email: undefined, // Frontend doesn't collect email currently
+                summary: draft.summary,
+                organizations: draft.orgs, // Backend expects 'organizations' not 'orgs'
+              };
+              
+              // Extract organization IDs for doApply
+              const orgIds = draft.orgs.map((org) => org.id);
+              
+              // Send message with application draft and doApply flag
+              await sendMessage("I'm ready to submit my application", {
+                applicationDraft: backendDraft,
+                doApply: orgIds,
+              });
+              
+              setUiDraft(null);
               onClose();
             }}
+            submitting={sending}
           />
         ) : null}
         <Box
