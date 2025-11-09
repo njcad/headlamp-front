@@ -9,6 +9,7 @@ import { sendChatMessage } from "@/api/chat";
 import type {
   AgentMessageResponse,
   ApplicationDraft,
+  BackendApplicationDraft,
   OrgType,
 } from "@/types/chatTypes";
 
@@ -26,7 +27,11 @@ type ChatContextValue = {
   error: string | null;
   sendMessage: (
     text: string,
-    options?: { clickedOrgIds?: number[] }
+    options?: {
+      clickedOrgIds?: number[];
+      applicationDraft?: BackendApplicationDraft;
+      doApply?: number[];
+    }
   ) => Promise<void>;
   clear: () => void;
 };
@@ -46,7 +51,14 @@ export function ChatProvider(props: { children: React.ReactNode }) {
   });
 
   const sendMessage = useCallback(
-    async (text: string, options?: { clickedOrgIds?: number[] }) => {
+    async (
+      text: string,
+      options?: {
+        clickedOrgIds?: number[];
+        applicationDraft?: BackendApplicationDraft;
+        doApply?: number[];
+      }
+    ) => {
       const trimmed = text.trim();
       if (!trimmed || sending) return;
       setError(null);
@@ -58,15 +70,22 @@ export function ChatProvider(props: { children: React.ReactNode }) {
       setMessages((prev) => [...prev, userMessage]);
       setSending(true);
       try {
-        const res: AgentMessageResponse = await sendChatMessage(
-          userId
-            ? {
-                user_id: userId,
-                message: trimmed,
-                clickedOrgIds: options?.clickedOrgIds,
-              }
-            : { message: trimmed, clickedOrgIds: options?.clickedOrgIds }
-        );
+        const payload: any = {
+          message: trimmed,
+        };
+        if (userId) {
+          payload.user_id = userId;
+        }
+        if (options?.clickedOrgIds) {
+          payload.clickedOrgIds = options.clickedOrgIds;
+        }
+        if (options?.applicationDraft) {
+          payload.applicationDraft = options.applicationDraft;
+        }
+        if (options?.doApply) {
+          payload.doApply = options.doApply;
+        }
+        const res: AgentMessageResponse = await sendChatMessage(payload);
         if (!userId && res.user_id) {
           try {
             localStorage.setItem("headlamp_user_id", res.user_id);
@@ -78,7 +97,7 @@ export function ChatProvider(props: { children: React.ReactNode }) {
           role: "assistant",
           content: res.message,
           orgs: res.orgs,
-          applicationDraft: res.application_draft,
+          applicationDraft: res.applicationDraft as unknown as ApplicationDraft,
         };
         setMessages((prev) => [...prev, assistantMessage]);
       } catch (e) {

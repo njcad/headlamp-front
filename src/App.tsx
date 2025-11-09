@@ -6,10 +6,11 @@ import PartnerLoginPage from "@/pages/PartnerLoginPage";
 import PartnerDashboardPage from "@/pages/PartnerDashboardPage";
 import ClientChatPage from "@/pages/ClientChatPage";
 import CaseProfilePage from "@/pages/CaseProfilePage";
+import ClientApplicationsPage from "@/pages/ClientApplicationsPage";
 
 function AppContainer() {
   return (
-    <Container maxW="container.2xl" pt="20" pb="24">
+    <Container maxW="container.xl" pt="20" pb="24">
       <Outlet />
     </Container>
   );
@@ -21,11 +22,13 @@ function App() {
       <AppHeader />
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        {/* All routes below use the shared Container layout */}
         <Route element={<AppContainer />}>
           <Route path="/partner/login" element={<PartnerLoginPage />} />
           <Route path="/partner/dashboard" element={<PartnerDashboardPage />} />
           <Route path="/partner/case/:caseId" element={<CaseProfilePage />} />
           <Route path="/chat" element={<ClientChatPage />} />
+          <Route path="/client/applications" element={<ClientApplicationsPage />} />
         </Route>
       </Routes>
     </>

@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import type { ApplicationDraft } from "@/types/chatTypes";
 import ApplicationDraftCard from "@/components/chat/ApplicationDraftCard";
+import { useNavigate } from "react-router-dom";
 
 export default function ApplicationDraftModal(props: {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export default function ApplicationDraftModal(props: {
   submitting?: boolean;
 }) {
   const { isOpen, onClose, draft, onSubmit, submitting } = props;
+  const navigate = useNavigate();
   return (
     <Portal>
       <DialogRoot
@@ -46,7 +48,12 @@ export default function ApplicationDraftModal(props: {
             <DialogBody pb="6">
               <ApplicationDraftCard
                 draft={draft}
-                onSubmit={onSubmit}
+                onSubmit={async (d) => {
+                  await onSubmit(d);
+                  navigate("/client/applications", {
+                    state: { pendingFromSubmission: true },
+                  });
+                }}
                 submitting={submitting}
               />
             </DialogBody>

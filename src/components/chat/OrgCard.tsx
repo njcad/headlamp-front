@@ -1,7 +1,8 @@
-import { Box, HStack, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, HStack, Stack, Text } from "@chakra-ui/react";
 import { LuCheck } from "react-icons/lu";
 import type { OrgType } from "@/types/chatTypes";
 import { keyframes } from "@emotion/react";
+import { useState } from "react";
 
 export default function OrgCard(props: {
   org: OrgType;
@@ -10,6 +11,7 @@ export default function OrgCard(props: {
   delayMs?: number;
 }) {
   const { org, selected, onToggle, delayMs = 0 } = props;
+  const [expanded, setExpanded] = useState(false);
 
   const fadeDown = keyframes`
     from { opacity: 0; transform: translateY(-6px); }
@@ -38,9 +40,27 @@ export default function OrgCard(props: {
       <HStack justify="space-between" align="start" w="full">
         <Stack gap="1" pr="10">
           <Text fontWeight="semibold">{org.name}</Text>
-          <Text color="fg.muted" fontSize="sm">
-            {org.description}
-          </Text>
+          {expanded ? (
+            <Text color="fg.muted" fontSize="sm">
+              {org.description}
+            </Text>
+          ) : (
+            <Text color="fg.muted" fontSize="sm" lineClamp={2}>
+              {org.description}
+            </Text>
+          )}
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded((v) => !v);
+            }}
+            variant="subtle"
+            size="xs"
+            alignSelf="start"
+            color="fg.muted"
+          >
+            {expanded ? "Show less" : "Show more"}
+          </Button>
         </Stack>
         <Box
           as="button"

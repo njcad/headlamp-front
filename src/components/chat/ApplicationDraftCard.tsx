@@ -20,6 +20,7 @@ export default function ApplicationDraftCard(props: {
     initialDraft.orgs.map((o) => o.id)
   );
   const [hasConsent, setHasConsent] = useState(false);
+  const [editingSummary, setEditingSummary] = useState(false);
 
   const fadeDown = keyframes`
     from { opacity: 0; transform: translateY(-12px); }
@@ -32,11 +33,11 @@ export default function ApplicationDraftCard(props: {
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const selectedOrgs = initialDraft.orgs.filter((o) =>
       selectedOrgIds.includes(o.id)
     );
-    onSubmit({
+    await onSubmit({
       name,
       phone,
       summary,
@@ -93,14 +94,37 @@ export default function ApplicationDraftCard(props: {
             placeholder="Enter your phone number"
             required
           />
-          <EditableField
-            label="Summary of Your Situation"
-            value={summary}
-            onChange={setSummary}
-            placeholder="Describe what help you're looking for..."
-            multiline
-            required
-          />
+          {editingSummary ? (
+            <EditableField
+              label="Summary of Your Situation"
+              value={summary}
+              onChange={setSummary}
+              placeholder="Describe what help you're looking for..."
+              multiline
+              required
+            />
+          ) : (
+            <Box>
+              <Text fontSize="sm" color="fg.muted" mb="2">
+                Summary of Your Situation
+              </Text>
+              {summary ? (
+                <Text color="fg" lineClamp={3}>
+                  {summary}
+                </Text>
+              ) : (
+                <Text color="fg.muted">No summary provided yet.</Text>
+              )}
+            </Box>
+          )}
+          <Button
+            onClick={() => setEditingSummary((v) => !v)}
+            variant="subtle"
+            size="sm"
+            alignSelf="start"
+          >
+            {editingSummary ? "Done" : "Edit summary"}
+          </Button>
         </Stack>
 
         {/* Organization Selection */}
