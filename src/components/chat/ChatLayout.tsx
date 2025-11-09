@@ -1,10 +1,10 @@
-import { Box, Button, Flex, Text, useDisclosure } from "@chakra-ui/react";
+import { Box, Flex, Text, useDisclosure } from "@chakra-ui/react";
 import MessageList from "@/components/chat/MessageList";
 import Composer from "@/components/chat/Composer";
 import { useChatContext } from "@/context/ChatContext";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import ApplicationDraftModal from "@/components/chat/ApplicationDraftModal";
-import type { ApplicationDraft } from "@/types/chatTypes";
+import type { ApplicationDraft as UIApplicationDraft } from "@/types/chatTypes";
 
 export default function ChatLayout() {
   const { messages, error, sendMessage, sending } = useChatContext();
@@ -25,39 +25,27 @@ export default function ChatLayout() {
     });
     setSelectedOrgIds([]);
   };
-  const { open, onOpen, onClose } = useDisclosure({ defaultOpen: true });
-  const mockDraft: ApplicationDraft = useMemo(
-    () => ({
-      name: "John Doe",
-      phone: "(555) 123-4567",
-      summary:
-        "I need help with food assistance and housing support for my family. I recently lost my job and am struggling to make ends meet.",
-      orgs: [
-        {
-          id: 1,
-          name: "City Food Bank",
-          description:
-            "Provides emergency food assistance to families in need.",
-        },
-        {
-          id: 2,
-          name: "Housing First Coalition",
-          description:
-            "Offers temporary housing and rental assistance programs.",
-        },
-        {
-          id: 3,
-          name: "Family Support Services",
-          description:
-            "Comprehensive support including counseling and job placement.",
-        },
-      ],
-    }),
-    []
-  );
+  const { open, onOpen, onClose } = useDisclosure();
+  const [uiDraft, setUiDraft] = useState<UIApplicationDraft | null>(null);
+  // Open modal when server-sent draft arrives
   useEffect(() => {
-    if (messages.length === 0) onOpen();
-  }, [messages.length, onOpen]);
+    const lastAssistant = [...messages]
+      .reverse()
+      .find(
+        (m) => (m as any).role === "assistant" && (m as any).applicationDraft
+      ) as any;
+    const backendDraft = lastAssistant?.applicationDraft;
+    if (backendDraft) {
+      const mapped: UIApplicationDraft = {
+        name: backendDraft.name || "",
+        phone: backendDraft.phone || "",
+        summary: backendDraft.summary || "",
+        orgs: backendDraft.organizations || [],
+      };
+      setUiDraft(mapped);
+      onOpen();
+    }
+  }, [messages, onOpen]);
   return (
     <Flex direction="column" minH="70vh">
       <Flex direction="column" flex="1" align="center">
@@ -81,10 +69,10 @@ export default function ChatLayout() {
             pointerEvents="none"
           />
           {messages.length === 0 ? (
-            <Flex justify="center" align="center" minH="30vh">
-              <Button onClick={onOpen} colorPalette="orange" size="md">
-                Review application draft
-              </Button>
+            <Flex justify="center" align="center" minH="50vh">
+              <Text fontSize="3xl" fontWeight="bold">
+                What's going on? Here to help.
+              </Text>
             </Flex>
           ) : (
             <MessageList
@@ -107,16 +95,20 @@ export default function ChatLayout() {
             pointerEvents="none"
           />
         </Box>
-        <ApplicationDraftModal
-          isOpen={open}
-          onClose={onClose}
-          draft={mockDraft}
-          onSubmit={(draft) => {
-            console.log("Submit ApplicationDraft:", draft);
-            alert("Mock submitted. Check console for payload.");
-            onClose();
-          }}
-        />
+        {uiDraft ? (
+          <ApplicationDraftModal
+            isOpen={open}
+            onClose={() => {
+              setUiDraft(null);
+              onClose();
+            }}
+            draft={uiDraft}
+            onSubmit={(draft) => {
+              console.log("Submit ApplicationDraft:", draft);
+              onClose();
+            }}
+          />
+        ) : null}
         <Box
           position="fixed"
           left="0"
@@ -137,9 +129,10 @@ export default function ChatLayout() {
               fontSize="xs"
               mt="2"
               textAlign="center"
-              pb="2"
+              pb="6"
             >
-              This is a demo. Chat functionality coming soon.
+              Headlamp uses AI to help you find resources and apply to
+              organizations. For emergency support, please call 911.
             </Text>
           </Box>
         </Box>

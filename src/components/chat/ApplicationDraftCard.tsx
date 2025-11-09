@@ -5,6 +5,8 @@ import type { ApplicationDraft } from "@/types/chatTypes";
 import EditableField from "@/components/chat/EditableField";
 import ConsentCheckbox from "@/components/chat/ConsentCheckbox";
 import OrgCard from "@/components/chat/OrgCard";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function ApplicationDraftCard(props: {
   draft: ApplicationDraft;
@@ -20,6 +22,8 @@ export default function ApplicationDraftCard(props: {
     initialDraft.orgs.map((o) => o.id)
   );
   const [hasConsent, setHasConsent] = useState(false);
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
+  const [editingSummary, setEditingSummary] = useState(false);
 
   const fadeDown = keyframes`
     from { opacity: 0; transform: translateY(-12px); }
@@ -93,14 +97,94 @@ export default function ApplicationDraftCard(props: {
             placeholder="Enter your phone number"
             required
           />
-          <EditableField
-            label="Summary of Your Situation"
-            value={summary}
-            onChange={setSummary}
-            placeholder="Describe what help you're looking for..."
-            multiline
-            required
-          />
+          {summaryExpanded ? (
+            editingSummary ? (
+              <EditableField
+                label="Summary of Your Situation"
+                value={summary}
+                onChange={setSummary}
+                placeholder="Describe what help you're looking for..."
+                multiline
+                required
+              />
+            ) : (
+              <Box>
+                <Text fontSize="sm" color="fg.muted" mb="2">
+                  Summary of Your Situation
+                </Text>
+                <Box
+                  p="3"
+                  rounded="md"
+                  borderWidth="1px"
+                  borderColor="border"
+                  bg="bg.subtle"
+                >
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h1: (props) => (
+                        <Heading size="md" mt="3" {...(props as any)} />
+                      ),
+                      h2: (props) => (
+                        <Heading size="sm" mt="3" {...(props as any)} />
+                      ),
+                      h3: (props) => (
+                        <Heading size="xs" mt="3" {...(props as any)} />
+                      ),
+                      p: (props) => <Text mt="2" {...(props as any)} />,
+                      ul: (props) => <Box as="ul" pl="4" {...(props as any)} />,
+                      ol: (props) => <Box as="ol" pl="4" {...(props as any)} />,
+                      li: (props) => (
+                        <Box as="li" ml="2" my="1">
+                          {(props as any).children}
+                        </Box>
+                      ),
+                      strong: (props) => (
+                        <Box as="strong" fontWeight="semibold">
+                          {(props as any).children}
+                        </Box>
+                      ),
+                    }}
+                  >
+                    {summary || "No summary provided yet."}
+                  </ReactMarkdown>
+                </Box>
+              </Box>
+            )
+          ) : (
+            <Box>
+              <Text fontSize="sm" color="fg.muted" mb="2">
+                Summary of Your Situation
+              </Text>
+              {summary ? (
+                <Text color="fg" lineClamp={3}>
+                  {summary}
+                </Text>
+              ) : (
+                <Text color="fg.muted">No summary provided yet.</Text>
+              )}
+            </Box>
+          )}
+          <Stack direction="row" gap="2">
+            <Button
+              onClick={() => setSummaryExpanded((v) => !v)}
+              variant="subtle"
+              size="sm"
+              alignSelf="start"
+            >
+              {summaryExpanded ? "Hide summary" : "Expand summary"}
+            </Button>
+            {summaryExpanded ? (
+              <Button
+                onClick={() => setEditingSummary((v) => !v)}
+                variant="subtle"
+                size="sm"
+                alignSelf="start"
+              >
+                {editingSummary ? "Preview" : "Edit summary"}
+              </Button>
+            ) : null}
+          </Stack>
         </Stack>
 
         {/* Organization Selection */}

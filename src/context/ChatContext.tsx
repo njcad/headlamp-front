@@ -78,7 +78,7 @@ export function ChatProvider(props: { children: React.ReactNode }) {
           role: "assistant",
           content: res.message,
           orgs: res.orgs,
-          applicationDraft: res.application_draft,
+          applicationDraft: res.applicationDraft as unknown as ApplicationDraft,
         };
         setMessages((prev) => [...prev, assistantMessage]);
       } catch (e) {
